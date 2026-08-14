@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zerno Coffee Roasters | Свежий кофе</title>
+    
+    <!-- Шрифты -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ================= ДИЗАЙН-СИСТЕМА ================= */
+        :root {
+            --bg-cream: #F5EFE6;
+            --text-choco: #3B2A20;
+            --accent-terra: #C97B4A;
+            --accent-terra-hover: #b56c3f;
+            --font-sans: 'Montserrat', sans-serif;
+            --font-serif: 'Playfair Display', serif;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 8px;
+            --shadow: 0 10px 30px rgba(59, 42, 32, 0.08);
+            --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-sans); background-color: var(--bg-cream);
+            color: var(--text-choco); line-height: 1.6; overflow-x: hidden; scroll-behavior: smooth;
+        }
+
+        h1, h2, h3, h4 { font-family: var(--font-serif); font-weight: 600; line-height: 1.2; }
+        h2 { font-size: 2.5rem; margin-bottom: 2rem; text-align: center; }
+        section { padding: 6rem 2rem; max-width: 1200px; margin: 0 auto; }
+
+        .reveal { opacity: 0; transform: translateY(40px); transition: var(--transition); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* ================= КНОПКИ ================= */
+        .btn {
+            display: inline-block; padding: 14px 28px; border-radius: var(--radius-sm);
+            font-family: var(--font-sans); font-weight: 500; text-decoration: none;
+            cursor: pointer; transition: var(--transition); border: none; font-size: 1rem; text-align: center;
+        }
+        .btn-primary { background-color: var(--accent-terra); color: var(--bg-cream); }
+        .btn-primary:hover:not(:disabled) { background-color: var(--accent-terra-hover); transform: translateY(-3px); box-shadow: 0 5px 15px rgba(201,123,74,0.3); }
+        .btn-outline { background-color: transparent; color: var(--bg-cream); border: 1px solid var(--bg-cream); }
+        .btn-outline:hover:not(:disabled) { background-color: var(--bg-cream); color: var(--text-choco); }
+        
+        .btn:disabled { opacity: 0.7; cursor: wait; }
+
+        /* ================= HEADER & КОРЗИНА ================= */
+        header {
+            position: fixed; top: 0; left: 0; right: 0; padding: 1.5rem 2rem;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000; transition: var(--transition);
+        }
+        header.scrolled {
+            background-color: rgba(245, 239, 230, 0.95); backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05); padding: 1rem 2rem;
+        }
+        
+        .logo svg { height: 40px; width: auto; stroke: var(--bg-cream); fill: none; transition: stroke 0.3s; }
+        header.scrolled .logo svg { stroke: var(--text-choco); }
+
+        .nav-wrapper { display: flex; align-items: center; gap: 2rem; }
+        nav { display: flex; gap: 2rem; }
+        nav a {
+            position: relative; text-decoration: none; color: var(--bg-cream); font-weight: 500;
+            font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; transition: var(--transition);
+        }
+        nav a::after {
+            content: ''; position: absolute; left: 0; bottom: -4px; width: 100%; height: 2px;
+            background: var(--accent-terra); transform: scaleX(0); transform-origin: right; transition: transform 0.3s ease;
+        }
+        nav a:hover::after { transform: scaleX(1); transform-origin: left; }
+        header.scrolled nav a { color: var(--text-choco); }
+        nav a:hover { color: var(--accent-terra) !important; }
+
+        .header-actions { display: flex; align-items: center; gap: 1.5rem; }
+        
+        .cart-wrap { position: relative; cursor: pointer; color: var(--bg-cream); transition: var(--transition); display: flex; align-items: center;}
+        header.scrolled .cart-wrap { color: var(--text-choco); }
+        .cart-wrap:hover { color: var(--accent-terra); transform: scale(1.1); }
+        .cart-badge {
+            position: absolute; top: -8px; right: -8px; background: var(--accent-terra); color: #fff;
+            font-size: 0.7rem; font-weight: bold; width: 18px; height: 18px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center; opacity: 0; transform: scale(0); transition: all 0.3s;
+        }
+        .cart-badge.has-items { opacity: 1; transform: scale(1); }
+
+        .menu-toggle { display: none; background: none; border: none; cursor: pointer; }
+        .menu-toggle svg { stroke: var(--bg-cream); width: 30px; height: 30px; transition: stroke 0.3s; }
+        header.scrolled .menu-toggle svg { stroke: var(--text-choco); }
+
+        /* ================= HERO ================= */
+        .hero {
+            position: relative;
+            height: 100vh;
+            display: flex; align-items: center; justify-content: center; text-align: center;
+            color: var(--bg-cream); max-width: 100%; padding: 0 2rem;
+            overflow: hidden;
+            background: linear-gradient(rgba(59, 42, 32, 0.4), rgba(59, 42, 32, 0.6)), 
+                        url('https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=2000&auto=format&fit=crop') center/cover no-repeat;
+        }
+        .hero-content { 
+            position: relative; z-index: 1; width: 100%; text-align: center; 
+        }
+        .hero h1 { 
+            font-size: clamp(1.2rem, 5vw, 4.5rem); 
+            margin: 0;
+            white-space: nowrap; 
+            text-transform: uppercase;
+        }
+
+        /* ================= КАРТА ВКУСА ================= */
+        .flavor-map-container {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+            background: #fff; padding: 3rem; border-radius: var(--radius-lg); box-shadow: var(--shadow);
+        }
+        .coffee-selector { display: flex; flex-direction: column; gap: 1rem; }
+        .coffee-btn {
+            padding: 1.5rem; text-align: left; background: var(--bg-cream);
+            border: 2px solid transparent; border-radius: var(--radius-md); cursor: pointer; transition: var(--transition);
+        }
+        .coffee-btn h3 { font-family: var(--font-sans); margin-bottom: 0.5rem; }
+        .coffee-btn p { font-size: 0.9rem; opacity: 0.7; }
+        .coffee-btn:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
+        .coffee-btn.active { border-color: var(--accent-terra); background: #fff; }
+        
+        .flavor-stats { padding: 2rem; }
+        .stat-group { margin-bottom: 1.5rem; }
+        .stat-header { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-weight: 500;}
+        .stat-bar { height: 8px; background: #E5DCD0; border-radius: 4px; overflow: hidden; }
+        .stat-fill { height: 100%; background: var(--accent-terra); border-radius: 4px; width: 0%; transition: width 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .flavor-notes { margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #E5DCD0; font-style: italic; }
+
+        /* ================= МЕНЮ ================= */
+        .menu-tabs { display: flex; justify-content: center; align-items: center; gap: 2rem; margin-bottom: 3rem; flex-wrap: wrap; text-align: center; }
+        .tab-btn {
+            background: none; border: none; font-size: 1.1rem; font-family: var(--font-sans);
+            color: var(--text-choco); opacity: 0.6; cursor: pointer; padding-bottom: 5px;
+            border-bottom: 2px solid transparent; transition: var(--transition);
+        }
+        .tab-btn.active { opacity: 1; border-bottom-color: var(--accent-terra); font-weight: 500; }
+
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .menu-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 0; border-bottom: 1px dashed rgba(59, 42, 32, 0.2);
+            position: relative; cursor: pointer; transition: var(--transition);
+        }
+        .menu-item:hover { color: var(--accent-terra); transform: translateX(8px); }
+        .menu-item-info { flex-grow: 1; }
+        .menu-item-name { font-weight: 500; font-size: 1.1rem; display: block; }
+        .menu-item-price { font-family: var(--font-serif); font-weight: 600; font-size: 1.2rem; }
+        
+        .add-to-cart-small {
+            background: var(--bg-cream); border: 1px solid var(--accent-terra); color: var(--accent-terra);
+            width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; margin-left: 15px; transition: var(--transition); font-weight: bold;
+        }
+        .add-to-cart-small:hover { background: var(--accent-terra); color: #fff; }
+
+        .menu-tooltip {
+            position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(10px);
+            background: #fff; padding: 1rem; border-radius: var(--radius-sm);
+            box-shadow: var(--shadow); width: 250px; opacity: 0; visibility: hidden;
+            transition: var(--transition); z-index: 10; text-align: center; pointer-events: none;
+        }
+        .menu-item:hover .menu-tooltip { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(-10px); }
+        .menu-tooltip p { font-size: 0.85rem; color: var(--text-choco); margin: 0; }
+        .menu-tooltip span { display: block; margin-top: 5px; color: var(--accent-terra); font-weight: 600;}
+
+        /* ================= ТАЙМЛАЙН ================= */
+        .timeline {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; text-align: center;
+            position: relative; margin-top: 4rem; align-items: start;
+        }
+        .timeline::before {
+            content: ''; position: absolute; top: 40px; left: 10%; right: 10%;
+            height: 2px; background: rgba(201, 123, 74, 0.2); z-index: 1;
+        }
+        .timeline-step { position: relative; z-index: 2; cursor: pointer; padding-bottom: 1rem; }
+        .step-icon {
+            width: 80px; height: 80px; margin: 0 auto 1.5rem; background: var(--bg-cream);
+            border: 2px solid var(--accent-terra); border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; font-size: 2rem; transition: var(--transition);
+        }
+        .timeline-step:hover .step-icon { background: var(--accent-terra); color: var(--bg-cream); transform: scale(1.1); }
+        .timeline h3 { font-size: 1.2rem; margin-bottom: 0.5rem; transition: color 0.3s; }
+        .timeline-step:hover h3 { color: var(--accent-terra); }
+        .timeline p.step-desc { font-size: 0.9rem; opacity: 0.8; }
+        
+        .step-details {
+            max-height: 0; overflow: hidden; opacity: 0;
+            transition: max-height 0.5s ease, opacity 0.5s ease, margin 0.5s ease;
+            font-size: 0.85rem; color: var(--accent-terra); text-align: center; background: #fff;
+            border-radius: var(--radius-sm); padding: 0 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        .timeline-step.expanded .step-details { max-height: 200px; opacity: 1; padding: 1rem; margin-top: 1rem; }
+
+        /* ================= КАЛЬКУЛЯТОР ПОМОЛА ================= */
+        .calculator-wrapper {
+            background: var(--text-choco); color: var(--bg-cream); padding: 5rem 3rem;
+            border-radius: var(--radius-lg); text-align: center;
+        }
+        .calculator-wrapper h2 { color: var(--bg-cream); }
+        .calc-container { max-width: 500px; margin: 0 auto; }
+        select {
+            width: 100%; padding: 1rem; border-radius: var(--radius-sm); border: none;
+            font-family: var(--font-sans); font-size: 1rem; margin-bottom: 2rem;
+            background: #fff; color: var(--text-choco); cursor: pointer; transition: box-shadow 0.3s;
+        }
+        select:focus { outline: none; box-shadow: 0 0 0 3px rgba(201,123,74,0.5); }
+        .calc-result {
+            background: rgba(255,255,255,0.1); padding: 2rem; border-radius: var(--radius-sm);
+            border-left: 4px solid var(--accent-terra); display: none; text-align: left;
+        }
+        .calc-result h4 { color: var(--accent-terra); font-family: var(--font-sans); margin-bottom: 0.5rem;}
+        .calc-result p { font-size: 0.95rem; opacity: 0.9; }
+
+        /* ================= ГАЛЕРЕЯ PARALLAX ================= */
+        .gallery-parallax {
+            height: 60vh; max-width: 100%; margin: 4rem 0;
+            background-image: url('https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=2000&auto=format&fit=crop');
+            background-attachment: fixed; background-position: center; background-size: cover;
+            display: flex; align-items: center; justify-content: center; position: relative;
+        }
+        .gallery-parallax::after { content: ''; position: absolute; inset: 0; background: rgba(59, 42, 32, 0.4); }
+        .gallery-text { position: relative; z-index: 10; color: var(--bg-cream); text-align: center; }
+        .gallery-text h2 { color: var(--bg-cream); font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 0;}
+
+        /* ================= ФОРМА БРОНИРОВАНИЯ И ИНТЕРАКТИВНАЯ КАРТА ================= */
+        .booking-section {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+            background: #fff; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow);
+        }
+        
+        .booking-map-wrapper {
+            background: #E5DCD0; padding: 3rem; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; position: relative;
+        }
+        
+        .seating-map {
+            width: 100%; max-width: 400px; aspect-ratio: 3/4; background: #fff;
+            border: 2px solid var(--text-choco); border-radius: var(--radius-md);
+            position: relative; margin-bottom: 2rem; box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+        }
+        
+        .seating-map::after {
+            content: 'ВХОД'; position: absolute; bottom: -14px; left: 50%; transform: translateX(-50%);
+            background: #fff; padding: 2px 12px; font-size: 0.8rem; font-weight: bold; color: var(--text-choco); border: 2px solid var(--text-choco); border-radius: 6px;
+            z-index: 10;
+        }
+
+        .infrastructure {
+            position: absolute; display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem; color: var(--text-choco); font-weight: 600; text-transform: uppercase;
+            letter-spacing: 1px; background: rgba(245, 239, 230, 0.7); text-align: center;
+        }
+        .kitchen { 
+            top: 0; right: 0; width: 35%; height: 20%; 
+            border-left: 2px solid var(--text-choco); border-bottom: 2px solid var(--text-choco); 
+            border-radius: 0 14px 0 8px; background: #f4e8e1; 
+        }
+        .bar-counter { 
+            top: 30%; left: 0; width: 20%; height: 35%; 
+            border-right: 2px solid var(--text-choco); border-top: 2px solid var(--text-choco); border-bottom: 2px solid var(--text-choco); 
+            border-radius: 0 8px 8px 0; background: #E5DCD0; writing-mode: vertical-rl; transform: rotate(180deg);
+        }
+        .restroom { 
+            bottom: 0; left: 0; width: 25%; height: 15%; 
+            border-right: 2px solid var(--text-choco); border-top: 2px solid var(--text-choco); 
+            border-radius: 0 8px 0 14px; background: #eee; 
+        }
+
+        .window-bar {
+            position: absolute; top: 0; left: 10%; right: 40%; height: 8px; background: #ADD8E6; border-bottom: 2px solid var(--text-choco);
+        }
+        .window-bar::before {
+            content: 'Панорамное окно'; position: absolute; top: 12px; left: 50%; transform: translateX(-50%); 
+            font-size: 0.6rem; color: #666; white-space: nowrap; font-family: var(--font-sans); letter-spacing: 1px;
+        }
+        
+        .table {
+            position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-family: var(--font-sans); font-weight: 700; font-size: 1rem;
+            cursor: pointer; transition: var(--transition); background: #fff; line-height: 1; text-align: center;
+        }
+        
+        .table span { font-size: 0.65rem; font-weight: 600; opacity: 1; margin-top: 2px; }
+
+        .w1 { top: 35px; left: 10%; width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--accent-terra); color: var(--accent-terra); }
+        .w2 { top: 35px; left: 25%; width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--accent-terra); color: var(--accent-terra); }
+        .w3 { top: 35px; left: 40%; width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--accent-terra); color: var(--accent-terra); }
+
+        .t1 { top: 25%; right: 12%; width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--accent-terra); color: var(--accent-terra); }
+        .t2 { top: 25%; left: 30%; width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--accent-terra); color: var(--accent-terra); }
+        .t3 { top: 45%; right: 12%; width: 55px; height: 55px; border-radius: 8px; border: 2px solid var(--accent-terra); color: var(--accent-terra); }
+        .t7 { top: 45%; left: 30%; width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--accent-terra); color: var(--accent-terra); }
+        .t8 { bottom: 25%; right: 12%; width: 55px; height: 55px; border-radius: 8px; border: 2px solid var(--accent-terra); color: var(--accent-terra); }
+        .t5 { bottom: 25%; left: 30%; width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--accent-terra); color: var(--accent-terra); }
+        .t4 { bottom: 6%; right: 12%; width: 55px; height: 55px; border-radius: 8px; border: 2px solid var(--accent-terra); color: var(--accent-terra); }
+        .t6 { bottom: 6%; left: 30%; width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--accent-terra); color: var(--accent-terra); }
+        
+        .table:not(.occupied):hover { background: rgba(201, 123, 74, 0.1); transform: scale(1.05); }
+        .table.selected { background: var(--accent-terra); color: #fff; transform: scale(1.1); box-shadow: 0 5px 15px rgba(201,123,74,0.4); }
+        
+        .map-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; font-size: 0.85rem; font-weight: 500;}
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .legend-dot { width: 14px; height: 14px; border-radius: 50%; }
+        .dot-free { border: 2px solid var(--accent-terra); }
+        .dot-sel { background: var(--accent-terra); }
+        .dot-occ { background: #aaa; }
+
+        .booking-form-wrap { padding: 4rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 500;}
+        .form-control {
+            width: 100%; padding: 12px 16px; border: 1px solid #E5DCD0;
+            border-radius: var(--radius-sm); font-family: var(--font-sans);
+            transition: var(--transition); background: var(--bg-cream);
+        }
+        .form-control:focus { outline: none; border-color: var(--accent-terra); box-shadow: 0 0 0 3px rgba(201,123,74,0.1); }
+
+        /* ================= ОТЗЫВЫ ================= */
+        .reviews-section { position: relative; padding-bottom: 4rem; }
+        .reviews-container {
+            display: flex; gap: 2rem; overflow-x: auto; padding: 1rem 0 2rem;
+            scroll-snap-type: x mandatory; scroll-behavior: smooth;
+            -ms-overflow-style: none; scrollbar-width: none;
+        }
+        .reviews-container::-webkit-scrollbar { display: none; }
+        .review-card {
+            min-width: 320px; background: #fff; padding: 2rem; border-radius: var(--radius-md);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03); flex-shrink: 0; scroll-snap-align: start;
+        }
+        .stars { color: var(--accent-terra); margin-bottom: 1rem; letter-spacing: 2px;}
+        .review-text { font-style: italic; margin-bottom: 1.5rem; font-size: 0.95rem; }
+        .review-author { font-weight: 600; font-family: var(--font-serif); }
+        
+        .carousel-btn {
+            position: absolute; top: 40%; transform: translateY(-50%);
+            background: var(--bg-cream); border: 2px solid var(--accent-terra);
+            color: var(--accent-terra); width: 44px; height: 44px; border-radius: 50%;
+            cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; transition: var(--transition);
+        }
+        .carousel-btn:hover { background: var(--accent-terra); color: #fff; transform: translateY(-50%) scale(1.1); }
+        .prev-btn { left: 0; }
+        .next-btn { right: 0; }
+
+        /* ================= ФУТЕР ================= */
+        footer {
+            background: var(--text-choco); color: var(--bg-cream);
+            padding: 4rem 2rem 2rem; margin-top: 4rem;
+        }
+        .footer-content {
+            max-width: 1200px; margin: 0 auto; display: grid;
+            grid-template-columns: 1fr 1fr 1fr; gap: 4rem; margin-bottom: 3rem;
+        }
+        .footer-col h3 { font-family: var(--font-sans); font-size: 1.2rem; margin-bottom: 1.5rem; color: var(--accent-terra);}
+        .footer-col p { opacity: 0.8; font-size: 0.9rem; margin-bottom: 1rem;}
+        .subscribe-form { display: flex; margin-top: 1rem; }
+        .subscribe-form input {
+            padding: 10px 15px; border: none; border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+            outline: none; width: 100%; transition: box-shadow 0.3s;
+        }
+        .subscribe-form input:focus { box-shadow: 0 0 0 2px var(--accent-terra) inset; }
+        .subscribe-form button {
+            background: var(--accent-terra); border: none; padding: 10px 20px;
+            color: #fff; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; cursor: pointer; transition: background 0.3s;
+        }
+        .subscribe-form button:hover { background: var(--accent-terra-hover); }
+        .social-links { display: flex; gap: 1rem; margin-top: 1rem;}
+        .social-links a {
+            display: flex; align-items: center; justify-content: center;
+            width: 40px; height: 40px; border: 1px solid rgba(245,239,230,0.3);
+            border-radius: 50%; color: var(--bg-cream); text-decoration: none; transition: var(--transition);
+        }
+        .social-links a:hover { border-color: var(--accent-terra); color: var(--accent-terra); transform: translateY(-3px); }
+        .footer-bottom {
+            max-width: 1200px; margin: 0 auto; text-align: center;
+            padding-top: 2rem; border-top: 1px solid rgba(245, 239, 230, 0.1);
+            font-size: 0.8rem; opacity: 0.6;
+        }
+
+        /* ================= МОДАЛЬНЫЕ ОКНА ================= */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(59, 42, 32, 0.6); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 2000; opacity: 0; visibility: hidden; transition: var(--transition);
+        }
+        .modal-overlay.show { opacity: 1; visibility: visible; }
+        
+        .cart-modal {
+            background: #fff; width: 100%; max-width: 500px; border-radius: var(--radius-lg);
+            padding: 2.5rem; position: relative; transform: translateY(50px);
+            transition: var(--transition); box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            max-height: 90vh; display: flex; flex-direction: column;
+        }
+        .modal-overlay.show .cart-modal { transform: translateY(0); }
+        
+        .close-modal {
+            position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none;
+            font-size: 1.5rem; cursor: pointer; color: var(--text-choco); transition: color 0.3s;
+        }
+        .close-modal:hover { color: var(--accent-terra); }
+        
+        .cart-modal h2 { text-align: left; margin-bottom: 1.5rem; font-size: 1.8rem; }
+        
+        .cart-items-list {
+            flex-grow: 1; overflow-y: auto; margin-bottom: 1.5rem;
+            padding-right: 10px; border-top: 1px solid #E5DCD0; border-bottom: 1px solid #E5DCD0;
+            padding-top: 1rem; min-height: 100px;
+        }
+        .cart-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; border-bottom: 1px dashed rgba(59, 42, 32, 0.1);
+        }
+        .cart-item:last-child { border-bottom: none; }
+        .cart-item-title { font-weight: 500; font-family: var(--font-sans); }
+        .cart-item-price { font-weight: 600; font-family: var(--font-serif); color: var(--accent-terra); }
+        .cart-item-remove { 
+            background: none; border: none; color: #999; cursor: pointer; 
+            font-size: 0.8rem; margin-left: 10px; text-decoration: underline;
+        }
+        .cart-item-remove:hover { color: red; }
+        
+        .cart-empty-msg { text-align: center; color: #999; padding: 2rem 0; font-style: italic; }
+        
+        .cart-total-row {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 1.4rem; font-family: var(--font-serif); font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        #successModal .cart-modal { text-align: center; max-width: 400px; padding: 3rem 2rem; }
+        #newsModal .cart-modal { text-align: center; max-width: 450px; padding: 3rem 2rem; }
+
+        /* ================= TOAST НОТИФИКАЦИЯ ================= */
+        .toast {
+            position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%);
+            background: var(--text-choco); color: #fff; padding: 12px 24px; border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 3000; font-size: 0.9rem;
+            display: flex; align-items: center; gap: 10px; transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .toast.show { bottom: 30px; }
+        .toast svg { fill: var(--accent-terra); width: 20px; height: 20px; }
+
+        /* ================= АДАПТИВНОСТЬ ================= */
+        @media (max-width: 1100px) {
+            nav { gap: 1rem; }
+            .header-actions { gap: 1rem; }
+            .flavor-map-container { gap: 2rem; padding: 2rem; }
+        }
+        @media (max-width: 992px) {
+            .flavor-map-container, .booking-section { grid-template-columns: 1fr; }
+            .timeline { grid-template-columns: 1fr 1fr; }
+            .timeline::before { display: none; }
+            .footer-content { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            .hero h1 { white-space: normal; } 
+            .menu-toggle { display: block; }
+            .nav-wrapper {
+                position: absolute; top: 100%; left: 0; right: 0;
+                background-color: var(--bg-cream); padding: 1.5rem;
+                flex-direction: column; align-items: stretch; gap: 1rem;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+                clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+                transition: clip-path 0.4s ease;
+            }
+            .nav-wrapper.active { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+            nav { flex-direction: column; text-align: center; gap: 1.5rem; }
+            nav a { color: var(--text-choco); font-size: 1.1rem; }
+            
+            .header-actions { flex-direction: column; width: 100%; gap: 1rem;}
+            .header-actions .btn { width: 100%; text-align: center; }
+            .cart-wrap { color: var(--text-choco); margin-top: 10px; }
+
+            .timeline { grid-template-columns: 1fr; }
+            .footer-content { grid-template-columns: 1fr; gap: 2rem;}
+            .booking-map-wrapper { padding: 2rem 1rem; }
+            .booking-form-wrap { padding: 2rem; }
+            .carousel-btn { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Шапка -->
+    <header id="header">
+        <a href="#" class="logo">
+            <svg viewBox="0 0 100 100" stroke-width="3">
+                <circle cx="50" cy="50" r="45" />
+                <path d="M30 30 L70 30 L30 70 L70 70" />
+                <path d="M50 35 C60 45 60 55 50 65 C40 55 40 45 50 35 Z" fill="rgba(201,123,74,0.2)"/>
+                <path d="M50 35 C53 45 47 55 50 65" stroke-dasharray="2 2" />
+            </svg>
+        </a>
+        
+        <div style="display: flex; gap: 1.5rem; align-items: center;">
+            <button class="menu-toggle" id="mobile-menu-btn" aria-label="Открыть меню">
+                <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        <div class="nav-wrapper" id="nav-wrapper">
+            <nav>
+                <a href="#flavor-map">Зерно</a>
+                <a href="#menu">Меню</a>
+                <a href="#timeline">О нас</a>
+                <a href="#booking">Бронь</a>
+            </nav>
+            <div class="header-actions">
+                <div class="cart-wrap" onclick="toggleHistory()" title="Мои брони и заказы" style="margin-right: 15px;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+                <div class="cart-wrap" onclick="toggleCart()" title="Корзина">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    <span class="cart-badge" id="cart-badge">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Главный экран -->
+    <section class="hero reveal">
+        <div class="hero-content">
+            <h1>СВЕЖИЙ КОФЕ ТОЛЬКО У НАС</h1>
+        </div>
+    </section>
+
+    <!-- Интерактивная карта вкуса -->
+    <section id="flavor-map" class="reveal">
+        <h2>Выберите свой идеальный профиль</h2>
+        <div class="flavor-map-container">
+            <div class="coffee-selector">
+                <div class="coffee-btn active" data-id="colombia" data-name="Колумбия Супремо (Зерно 250г)" data-price="850">
+                    <h3>Колумбия Супремо</h3>
+                    <p>Сладкий и сбалансированный, мытая обработка</p>
+                </div>
+                <div class="coffee-btn" data-id="ethiopia" data-name="Эфиопия Иргачеффе (Зерно 250г)" data-price="950">
+                    <h3>Эфиопия Иргачеффе</h3>
+                    <p>Яркий и цветочный, натуральная обработка</p>
+                </div>
+                <div class="coffee-btn" data-id="rwanda" data-name="Руанда Мутетели (Зерно 250г)" data-price="900">
+                    <h3>Руанда Мутетели</h3>
+                    <p>Плотный и сочный, мытая обработка</p>
+                </div>
+            </div>
+            
+            <div class="flavor-stats">
+                <div class="stat-group">
+                    <div class="stat-header"><span>Кислотность</span> <span id="acidity-val">Низкая</span></div>
+                    <div class="stat-bar"><div class="stat-fill" id="acidity-bar" style="width: 30%;"></div></div>
+                </div>
+                <div class="stat-group">
+                    <div class="stat-header"><span>Горечь</span> <span id="bitterness-val">Средняя</span></div>
+                    <div class="stat-bar"><div class="stat-fill" id="bitterness-bar" style="width: 50%;"></div></div>
+                </div>
+                <div class="stat-group">
+                    <div class="stat-header"><span>Сладость</span> <span id="sweetness-val">Высокая</span></div>
+                    <div class="stat-bar"><div class="stat-fill" id="sweetness-bar" style="width: 80%;"></div></div>
+                </div>
+                <div class="flavor-notes" id="flavor-notes">
+                    Ноты: красное яблоко, карамель, темный шоколад.
+                </div>
+                <button class="btn btn-primary" onclick="addActiveCoffeeToCart()" style="margin-top: 1.5rem; width: 100%;">В корзину</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Меню -->
+    <section id="menu" class="reveal">
+        <h2>Наше меню</h2>
+        <div class="menu-tabs">
+            <button class="tab-btn active" data-category="espresso">Кофе</button>
+            <button class="tab-btn" data-category="syrups">Сиропы</button>
+            <button class="tab-btn" data-category="milk">Растительное молоко</button>
+            <button class="tab-btn" data-category="desserts">Десерты</button>
+        </div>
+        
+        <div class="menu-grid" id="menu-grid">
+            <!-- КОФЕ -->
+            <div class="menu-item" data-category="espresso">
+                <div class="menu-item-info">
+                    <span class="menu-item-name">Капучино</span>
+                </div>
+                <span class="menu-item-price">250 ₽</span>
+                <button class="add-to-cart-small" onclick="event.stopPropagation(); addToCart('Капучино', 250)">+</button>
+                <div class="menu-tooltip"><p>На основе Эфиопии.</p><span>Во вкусе: молочный шоколад, персик, нуга</span></div>
+            </div>
+            <div class="menu-item" data-category="espresso">
+                <div class="menu-item-info">
+                    <span class="menu-item-name">Фильтр-кофе (V60)</span>
+                </div>
+                <span class="menu-item-price">200 ₽</span>
+                <button class="add-to-cart-small" onclick="event.stopPropagation(); addToCart('Фильтр-кофе (V60)', 200)">+</button>
+                <div class="menu-tooltip"><p>Руанда Мутетели.</p><span>Во вкусе: красные ягоды, черный чай</span></div>
+            </div>
+            <div class="menu-item" data-category="espresso">
+                <div class="menu-item-info">
+                    <span class="menu-item-name">Флэт Уайт</span>
+                </div>
+                <span class="menu-item-price">270 ₽</span>
+                <button class="add-to-cart-small" onclick="event.stopPropagation(); addToCart('Флэт Уайт', 270)">+</button>
+                <div class="menu-tooltip"><p>Двойной эспрессо, меньше молока.</p><span>Плотный кофейный вкус с ореховым послевкусием</span></div>
+            </div>
+            <div class="menu-item" data-category="espresso">
+                <div class="menu-item-info">
+                    <span class="menu-item-name">Эспрессо / Доппио</span>
+                </div>
+                <span class="menu-item-price">180 ₽</span>
+                <button class="add-to-cart-small" onclick="event.stopPropagation(); addToCart('Эспрессо / Доппио', 180)">+</button>
+                <div class="menu-tooltip"><p>Классика. Колумбия Супремо.</p><span>Сбалансированная кислотность, шоколад</span></div>
+            </div>
+            <div class="menu-item" data-category="espresso">
+                <div class="menu-item-info">
+                    <span class="menu-item-name">Латте</span>
+                </div>
+                <span class="menu-item-price">260 ₽</span>
+                <button class="add-to-cart-small" onclick="event.stopPropagation(); addToCart('Латте', 260)">+</button>
+                <div class="menu-tooltip"><p>Классический молочный кофе.</p><span>Мягкий вкус, много пены</span></div>
+            </div>
+            <div class="menu-item" data-category="espresso">
+                <div class="menu-item-info">
+                    <span class="menu-item-name">Раф</span>
+                </div>
+                <span class="menu-item-price">300 ₽</span>
+                <button class="add-to-cart-small" onclick="event.stopPropagation(); addToCart('Раф', 300)">+</button>
+                <div class="menu-tooltip"><p>Кофе со сливками.</p><span>Сладкий, нежный, обволакивающий</span></div>
+            </div>
+
+            <!-- СИРОПЫ -->
+            <div class="menu-item" data-category="syrups" style="display: none;">
+                <div class="menu-item-info">
+                    <span class="menu-item-name">Ванильный сироп</span>
+                </div>
+                <span class="menu-item-price">50 ₽</span>
+                <button class="add-to-cart-small" onclick="event.stopPropagation(); addToCart('Ванильный сироп', 50)">+</button>
+                <div class="menu-tooltip"><p>Классика.</p><span>Добавит сладкие ноты ванили</span></div>
+            </div>
+            <div class="menu-item" data-category="syrups" style="display: none;">
+                <div class="menu-item-info">
+                    <span class="menu-item-name">Карамельный сироп</span>
+                </div>
+                <span class="menu-item-price">50 ₽</span>
+                <button class="add-to-cart-small" onclick="event.stopPropagation(); addToCart('Карамельный сироп', 50)">+</button>
+                <div class="menu-tooltip"><p>Сладкая карамель.</p><span>Идеально для латте</span></div>
+            </div>
+            <div class="menu-item" data-category="syrups" style="display: none;">
+                <div class="menu-item-info">
+                    <span class="menu-item-name">Лавандовый сироп</span>
+                </div>
+                <span class="menu-item-price">60 ₽</span>
+                <button class="add-to-cart-small" onclick="event.stopPropagation(); addToCart('Лавандовый сироп', 60)">+</button>
+                <div class="menu-tooltip"><p>Цветочный аромат.</p><span>Освежающий и необычный</span></div>
+            </div>
+
+            <!-- МОЛОКО -->
+            <div class="menu-item" data-category="milk" style="display: none;">
+                <div class="menu-item-info">
+                    <span class="menu-item-name">Миндальное молоко</span>
+                </div>
+                <span class="menu-item-price">80 ₽</span>
+                <button class="add-to-cart-small" onclick="event.stopPropagation(); addToCart('Миндальное молоко', 80)">+</button>
+                <div class="menu-tooltip"><p>Растительное.</p><span>Легкий ореховый вкус</span></div>
+            </div>
+            <div class="menu-item" data-category="milk" style="display: none;">
+                <div class="menu-item-info">
+                    <span class="menu-item-name">Фундучное молоко</span>
+                </div>
+                <span class="menu-item-price">80 ₽</span>
+                <button class="add-to-cart-small" onclick="event.stopPropagation(); addToCart('Фундучное молоко', 80)">+</button>
+                <div class="menu-tooltip"><p>Растительное.</p><span>Насыщенный вкус лесного ореха</span></div>
+            </div>
+            <div class="menu-item" data-category="milk" style="display: none;">
+                <div class="menu-item-info">
+                    <span class="menu-item-name">Овсяное молоко</span>
+                </div>
+                <span class="menu-item-price">80 ₽</span>
+                <button class="add-to-cart-small" onclick="event.stopPropagation(); addToCart('Овсяное молоко', 80)">+</button>
+                <div class="menu-tooltip"><p>Растительное.</p><span>Естественная сладость</span></div>
+            </div>
+            <div class="menu-item" data-category="milk" style="display: none;">
+                <div class="menu-item-info">
+                    <span class="menu-item-name">Кокосовое молоко</span>
+                </div>
+                <span class="menu-item-price">80 ₽</span>
+                <button class="add-to-cart-small" onclick="event.stopPropagation(); addToCart('Кокосовое молоко', 80)">+</button>
+                <div class="menu-tooltip"><p>Растительное.</p><span>Тропические ноты</span></div>
+            </div>
+            <div class="menu-item" data-category="milk" style="display: none;">
+                <div class="menu-item-info">
+                    <span class="menu-item-name">Банановое молоко</span>
+                </div>
+                <span class="menu-item-price">80 ₽</span>
+                <button class="add-to-cart-small" onclick="event.stopPropagation(); addToCart('Банановое молоко', 80)">+</button>
+                <div class="menu-tooltip"><p>Растительное.</p><span>Естественная фруктовая сладость</span></div>
+            </div>
+            <div class="menu-item" data-category="milk" style="display: none;">
+                <div class="menu-item-info">
+                    <span class="menu-item-name">Соевое молоко</span>
+                </div>
+                <span class="menu-item-price">80 ₽</span>
+                <button class="add-to-cart-small" onclick="event.stopPropagation(); addToCart('Соевое молоко', 80)">+</button>
+                <div class="menu-tooltip"><p>Растительное.</p><span>Нейтральный вкус, отлично взбивается</span></div>
+            </div>
+
+            <!-- ДЕСЕРТЫ -->
+            <div class="menu-item" data-category="desserts" style="display: none;">
+                <div class="menu-item-info">
+                    <span class="menu-item-name">Круассан классический</span>
+                </div>
+                <span class="menu-item-price">190 ₽</span>
+                <button class="add-to-cart-small" onclick="event.stopPropagation(); addToCart('Круассан классический', 190)">+</button>
+                <div class="menu-tooltip"><p>Много сливочного масла.</p><span>Идеально с капучино</span></div>
+            </div>
+            <div class="menu-item" data-category="desserts" style="display: none;">
+                <div class="menu-item-info">
+                    <span class="menu-item-name">Тарталетка с лимоном</span>
+                </div>
+                <span class="menu-item-price">280 ₽</span>
+                <button class="add-to-cart-small" onclick="event.stopPropagation(); addToCart('Тарталетка с лимоном', 280)">+</button>
+                <div class="menu-tooltip"><p>С меренгой.</p><span>Яркий контраст сладкого и кислого</span></div>
+            </div>
+            <div class="menu-item" data-category="desserts" style="display: none;">
+                <div class="menu-item-info">
+                    <span class="menu-item-name">Брауни с вишней</span>
+                </div>
+                <span class="menu-item-price">250 ₽</span>
+                <button class="add-to-cart-small" onclick="event.stopPropagation(); addToCart('Брауни с вишней', 250)">+</button>
+                <div class="menu-tooltip"><p>Шоколадный бисквит.</p><span>С кислинкой вишни</span></div>
+            </div>
+            <div class="menu-item" data-category="desserts" style="display: none;">
+                <div class="menu-item-info">
+                    <span class="menu-item-name">Меренговый рулет</span>
+                </div>
+                <span class="menu-item-price">320 ₽</span>
+                <button class="add-to-cart-small" onclick="event.stopPropagation(); addToCart('Меренговый рулет', 320)">+</button>
+                <div class="menu-tooltip"><p>Нежная меренга.</p><span>С фисташками и малиной</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- От фермы до чашки (Таймлайн) -->
+    <section id="timeline" class="reveal">
+        <h2>Путь нашего зерна</h2>
+        <p style="text-align: center; margin-bottom: 3rem; opacity: 0.7; font-size: 0.9rem;">(Нажмите на шаг, чтобы узнать больше)</p>
+        <div class="timeline">
+            <div class="timeline-step" onclick="this.classList.toggle('expanded')">
+                <div class="step-icon">🌱</div>
+                <h3>Плантация</h3>
+                <p class="step-desc">Тщательный отбор ягод на фермах в Руанде и Колумбии.</p>
+                <div class="step-details">Работаем напрямую с фермерами. Высота произрастания 1500–2000 м над уровнем моря. Только ручной сбор спелых ягод.</div>
+            </div>
+            <div class="timeline-step" onclick="this.classList.toggle('expanded')">
+                <div class="step-icon">☀️</div>
+                <h3>Обработка</h3>
+                <p class="step-desc">Сухая или мытая обработка под контролем фермеров.</p>
+                <div class="step-details">Зерно ферментируется и сушится на африканских кроватях до идеальной влажности 10-12%.</div>
+            </div>
+            <div class="timeline-step" onclick="this.classList.toggle('expanded')">
+                <div class="step-icon">🔥</div>
+                <h3>Обжарка</h3>
+                <p class="step-desc">Еженедельная бережная обжарка в нашем ростере.</p>
+                <div class="step-details">Используем современный ростер с профилированием температуры, чтобы раскрыть весь потенциал терруара.</div>
+            </div>
+            <div class="timeline-step" onclick="this.classList.toggle('expanded')">
+                <div class="step-icon">☕️</div>
+                <h3>Чашка</h3>
+                <p class="step-desc">Идеальная экстракция руками наших бариста.</p>
+                <div class="step-details">Каждая чашка варится по строгим рецептам с контролем веса, времени и температуры воды.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Галерея Parallax -->
+    <div class="gallery-parallax reveal">
+        <div class="gallery-text">
+            <h2>Атмосфера Zerno</h2>
+        </div>
+    </div>
+
+    <!-- Калькулятор помола -->
+    <section id="calculator" class="reveal">
+        <div class="calculator-wrapper">
+            <h2>Поможем раскрыть вкус дома</h2>
+            <p style="margin-bottom: 2rem; opacity: 0.8;">Выберите способ заваривания, а мы подскажем, как смолоть ваше зерно.</p>
+            
+            <div class="calc-container">
+                <select id="brew-method">
+                    <option value="" disabled selected>Выберите метод заваривания...</option>
+                    <option value="cezve">Турка (Джезва)</option>
+                    <option value="espresso">Эспрессо-машина</option>
+                    <option value="moka">Гейзерная кофеварка (Мока)</option>
+                    <option value="v60">Воронка (V60 / Кемекс)</option>
+                    <option value="french">Френч-пресс</option>
+                </select>
+                
+                <div class="calc-result" id="calc-result">
+                    <h4 id="grind-title">Рекомендация</h4>
+                    <p id="grind-desc" style="margin-bottom: 10px;">Текст</p>
+                    <p id="grind-bean" style="font-weight: 600; color: var(--accent-terra);">Зерно</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Бронирование с ИНТЕРАКТИВНОЙ КАРТОЙ -->
+    <section id="booking" class="reveal">
+        <div class="booking-section">
+            <div class="booking-map-wrapper">
+                <h3 style="margin-bottom: 1.5rem; font-family: var(--font-sans);">Выберите столик</h3>
+                
+                <!-- Карта зала -->
+                <div class="seating-map">
+                    <!-- Инфраструктура -->
+                    <div class="infrastructure kitchen">Кухня</div>
+                    <div class="infrastructure bar-counter">Касса / Бар</div>
+                    <div class="infrastructure restroom">WC</div>
+
+                    <div class="window-bar"></div>
+                    
+                    <!-- Окно/стойка -->
+                    <div class="table w1" data-table="W1" title="Стойка у окна">W1<br><span>1 чел</span></div>
+                    <div class="table w2" data-table="W2" title="Стойка у окна">W2<br><span>1 чел</span></div>
+                    <div class="table w3" data-table="W3" title="Стойка у окна">W3<br><span>1 чел</span></div>
+                    
+                    <!-- Основной зал -->
+                    <div class="table t1" data-table="1">1<br><span>2 чел</span></div>
+                    <div class="table t2" data-table="2">2<br><span>2 чел</span></div>
+                    <div class="table t3" data-table="3">3<br><span>4 чел</span></div>
+                    <div class="table t7" data-table="7">7<br><span>2 чел</span></div>
+                    <div class="table t5" data-table="5">5<br><span>2 чел</span></div>
+                    <div class="table t8" data-table="8">8<br><span>4 чел</span></div>
+                    <div class="table t6" data-table="6">6<br><span>2 чел</span></div>
+                    <div class="table t4" data-table="4">4<br><span>4 чел</span></div>
+                </div>
+                
+                <!-- Легенда карты -->
+                <div class="map-legend">
+                    <div class="legend-item"><div class="legend-dot dot-free"></div> Свободен</div>
+                    <div class="legend-item"><div class="legend-dot dot-sel"></div> Выбран</div>
+                    <div class="legend-item"><div class="legend-dot dot-occ"></div> Занят</div>
+                </div>
+            </div>
+            
+            <div class="booking-form-wrap">
+                <h2>Забронировать стол</h2>
+                <!-- Индикатор выбранного столика -->
+                <p id="selected-table-text" style="color: var(--accent-terra); font-weight: 600; margin-bottom: 1.5rem;">Столик не выбран</p>
+                
+                <form id="bookingForm" onsubmit="submitBooking(event)">
+                    <div class="form-group">
+                        <label>Ваше имя</label>
+                        <input type="text" name="name" class="form-control" required placeholder="Иван Иванов">
+                    </div>
+                    <div class="form-group">
+                        <label>Дата</label>
+                        <input type="date" name="date" class="form-control" required>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Время</label>
+                            <input type="time" name="time" class="form-control" required value="10:00">
+                        </div>
+                        <div class="form-group">
+                            <label>Гости</label>
+                            <select name="guests" class="form-control">
+                                <option>1 персона</option>
+                                <option selected>2 персоны</option>
+                                <option>3-4 персоны</option>
+                                <option>5+ персон</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Блок для отображения ошибки двойного бронирования -->
+                    <div id="booking-warning" style="display: none; color: #d9534f; font-size: 0.85rem; font-weight: 600; margin-top: 1rem; text-align: center;"></div>
+                    
+                    <button type="submit" id="submit-booking-btn" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Жду встречи</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Отзывы -->
+    <section id="reviews" class="reviews-section reveal">
+        <h2>Что говорят о нас соседи</h2>
+        
+        <button class="carousel-btn prev-btn" id="prev-review">&#10094;</button>
+        <button class="carousel-btn next-btn" id="next-review">&#10095;</button>
+
+        <div class="reviews-container" id="reviews-container">
+            <div class="review-card">
+                <div class="stars">★★★★★</div>
+                <p class="review-text">«Лучший фильтр на районе! Очень уютно, идеальное место для работы с ноутбуком. Зерно покупаю только здесь.»</p>
+                <div class="review-author">— Анна С.</div>
+            </div>
+            <div class="review-card">
+                <div class="stars">★★★★★</div>
+                <p class="review-text">«Обожаю их капучино на растительном. Атмосфера скандинавского минимализма расслабляет. Ребята-бариста всегда приветливы.»</p>
+                <div class="review-author">— Максим К.</div>
+            </div>
+            <div class="review-card">
+                <div class="stars">★★★★☆</div>
+                <p class="review-text">«Вкусный кофе, отличная свежая выпечка. Единственный минус — вечером бывает сложно найти свободный столик.»</p>
+                <div class="review-author">— Елена В.</div>
+            </div>
+            <div class="review-card">
+                <div class="stars">★★★★★</div>
+                <p class="review-text">«Купил пачку Колумбии для дома, помогли настроить помол. Вкус просто фантастический! Спасибо!»</p>
+                <div class="review-author">— Дмитрий</div>
+            </div>
+        </div>
+        
+        <!-- Кнопка "Оставить отзыв" -->
+        <div style="text-align: center; margin-top: 3rem;">
+            <button class="btn btn-primary" onclick="document.getElementById('reviewModal').classList.add('show')">Оставить отзыв</button>
+        </div>
+    </section>
+
+    <!-- Футер -->
+    <footer class="reveal">
+        <div class="footer-content">
+            <div class="footer-col">
+                <h3>Zerno Coffee Roasters</h3>
+                <p>Маленькая городская обжарочная, где ценят вкус, качество и дружеское общение.</p>
+                <p>📍 ул. Кофейная, 42 (Вход со двора)</p>
+                <p>⏰ Будни: 08:00–21:00<br>Выходные: 09:00–22:00</p>
+            </div>
+            <div class="footer-col">
+                <h3>Подписка на микролоты</h3>
+                <p>Узнавайте первыми о новых сортах кофе и закрытых каппингах.</p>
+                <form class="subscribe-form" onsubmit="subscribeNewsletter(event)">
+                    <input type="email" placeholder="Ваш e-mail" required>
+                    <button type="submit">Подписаться</button>
+                </form>
+            </div>
+            <div class="footer-col">
+                <h3>Следите за нами</h3>
+                <div class="social-links">
+                    <a href="#">In</a>
+                    <a href="#">Tg</a>
+                    <a href="#">Vk</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 Zerno Coffee Roasters. Сварено с любовью. | Политика конфиденциальности
+        </div>
+    </footer>
+
+    <!-- Модальное окно Входа / Регистрации -->
+    <div id="loginModal" class="modal-overlay" onclick="if(event.target === this) this.classList.remove('show')">
+        <div class="cart-modal" style="max-width: 400px;">
+            <button class="close-modal" onclick="document.getElementById('loginModal').classList.remove('show')">&times;</button>
+            <h2>Личный кабинет</h2>
+            <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 1.5rem;">Пожалуйста, введите данные для входа или регистрации.</p>
+            <form onsubmit="submitLogin(event)">
+                <div class="form-group">
+                    <label>Имя</label>
+                    <input type="text" name="firstName" class="form-control" required placeholder="Иван">
+                </div>
+                <div class="form-group">
+                    <label>Фамилия</label>
+                    <input type="text" name="lastName" class="form-control" required placeholder="Иванов">
+                </div>
+                <div class="form-group">
+                    <label>Номер телефона</label>
+                    <input type="tel" name="phone" class="form-control" required placeholder="+7 (999) 000-00-00">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Войти</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно корзины -->
+    <div id="cartOverlay" class="modal-overlay" onclick="if(event.target === this) toggleCart()">
+        <div class="cart-modal">
+            <button class="close-modal" onclick="toggleCart()">&times;</button>
+            <h2>Ваша корзина</h2>
+            
+            <div class="cart-items-list" id="cart-items-list">
+                <div class="cart-empty-msg">В корзине пока пусто</div>
+            </div>
+            
+            <div class="cart-total-row">
+                <span>Итого:</span>
+                <span id="cart-total-price">0 ₽</span>
+            </div>
+            
+            <button id="checkout-btn" class="btn btn-primary" style="width: 100%; font-size: 1.1rem;" onclick="checkout()">Оформить заказ</button>
+        </div>
+    </div>
+    
+    <!-- Модальное окно истории (Мои заказы и брони) -->
+    <div id="historyModal" class="modal-overlay" onclick="if(event.target === this) this.classList.remove('show')">
+        <div class="cart-modal">
+            <button class="close-modal" onclick="document.getElementById('historyModal').classList.remove('show')">&times;</button>
+            <h2 style="margin-bottom: 0.5rem;">Мои брони и заказы</h2>
+            <div id="history-content" class="cart-items-list" style="padding-top: 1rem; border-top: none;">
+                <!-- Данные будут загружены через JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно подписки на новости -->
+    <div id="newsModal" class="modal-overlay" onclick="if(event.target === this) this.classList.remove('show')">
+        <div class="cart-modal" style="text-align: center; max-width: 450px; padding: 3rem 2rem;">
+            <button class="close-modal" onclick="document.getElementById('newsModal').classList.remove('show')">&times;</button>
+            <div style="font-size: 3rem; margin-bottom: 1rem;">☕️</div>
+            <h2 style="text-align: center; margin-bottom: 1rem;">Спасибо за подписку!</h2>
+            <p style="opacity: 0.8; margin-bottom: 1rem;">Ваш email успешно добавлен в базу.</p>
+            
+            <div style="background: var(--bg-cream); padding: 1.5rem; border-radius: var(--radius-sm); border: 1px solid var(--accent-terra); text-align: left; margin-bottom: 2rem;">
+                <p style="color: var(--accent-terra); font-weight: 600; margin-bottom: 0.5rem;">🔥 Горячая новость:</p>
+                <p style="font-size: 0.9rem; margin: 0; line-height: 1.5;">К нам только что приехал эксклюзивный микролот из Коста-Рики (анаэробная обработка). В эту субботу устраиваем открытый каппинг для всех желающих. Будем рады видеть вас!</p>
+            </div>
+            
+            <button class="btn btn-primary" onclick="document.getElementById('newsModal').classList.remove('show')">Отлично, приду!</button>
+        </div>
+    </div>
+    
+    <!-- Модальное окно "Оставить отзыв" -->
+    <div id="reviewModal" class="modal-overlay" onclick="if(event.target === this) this.classList.remove('show')">
+        <div class="cart-modal" style="max-width: 450px;">
+            <button class="close-modal" onclick="document.getElementById('reviewModal').classList.remove('show')">&times;</button>
+            <h2>Оставить отзыв</h2>
+            <form onsubmit="submitReview(event)">
+                <div class="form-group">
+                    <label>Ваше имя</label>
+                    <input type="text" class="form-control" required placeholder="Например, Анна">
+                </div>
+                <div class="form-group">
+                    <label>Ваш отзыв</label>
+                    <textarea class="form-control" rows="4" required placeholder="Напишите пару слов о нас..." style="resize: vertical;"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Отправить</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно успеха -->
+    <div id="successModal" class="modal-overlay" onclick="if(event.target === this) this.classList.remove('show')">
+        <div class="cart-modal" style="text-align: center; max-width: 400px; padding: 3rem 2rem;">
+            <button class="close-modal" onclick="document.getElementById('successModal').classList.remove('show')">&times;</button>
+            <div style="font-size: 4rem; margin-bottom: 1rem; line-height: 1;">✅</div>
+            <h2 style="text-align: center; margin-bottom: 1rem;">Успешно!</h2>
+            <p id="successMessage" style="opacity: 0.8; margin-bottom: 2rem;">Ваш запрос обработан.</p>
+            <button class="btn btn-primary" onclick="document.getElementById('successModal').classList.remove('show')">Отлично</button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Скрипты -->
+    <script>
+        // ================= ЛИЧНЫЙ КАБИНЕТ =================
+        let currentUser = null; 
+
+        function submitLogin(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            currentUser = {
+                firstName: formData.get('firstName'),
+                lastName: formData.get('lastName'),
+                phone: formData.get('phone')
+            };
+            document.getElementById('loginModal').classList.remove('show');
+            showToastMessage(`Добро пожаловать, ${currentUser.firstName}!`);
+        }
+
+        // Изменение шапки и мобильное меню
+        const header = document.getElementById('header');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const navWrapper = document.getElementById('nav-wrapper');
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) header.classList.add('scrolled');
+            else header.classList.remove('scrolled');
+        });
+
+        mobileMenuBtn.addEventListener('click', () => {
+            navWrapper.classList.toggle('active');
+            const isActive = navWrapper.classList.contains('active');
+            header.style.backgroundColor = isActive ? 'var(--bg-cream)' : '';
+        });
+
+        document.querySelectorAll('.nav-wrapper a').forEach(link => {
+            link.addEventListener('click', () => {
+                navWrapper.classList.remove('active');
+            });
+        });
+
+        // Карта вкуса
+        const coffeeData = {
+            colombia: { acidity: 30, bitterness: 50, sweetness: 80, acTxt: 'Низкая', bitTxt: 'Средняя', swTxt: 'Высокая', notes: 'Ноты: красное яблоко, карамель, темный шоколад.' },
+            ethiopia: { acidity: 85, bitterness: 20, sweetness: 60, acTxt: 'Высокая', bitTxt: 'Низкая', swTxt: 'Средняя', notes: 'Ноты: жасмин, бергамот, персик, черный чай.' },
+            rwanda:   { acidity: 60, bitterness: 40, sweetness: 75, acTxt: 'Средняя', bitTxt: 'Средняя', swTxt: 'Высокая', notes: 'Ноты: вишня, слива, тростниковый сахар.' }
+        };
+
+        const coffeeBtns = document.querySelectorAll('.coffee-btn');
+        coffeeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                coffeeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const id = btn.getAttribute('data-id');
+                const data = coffeeData[id];
+                
+                document.getElementById('acidity-bar').style.width = data.acidity + '%';
+                document.getElementById('acidity-val').innerText = data.acTxt;
+                document.getElementById('bitterness-bar').style.width = data.bitterness + '%';
+                document.getElementById('bitterness-val').innerText = data.bitTxt;
+                document.getElementById('sweetness-bar').style.width = data.sweetness + '%';
+                document.getElementById('sweetness-val').innerText = data.swTxt;
+                document.getElementById('flavor-notes').innerText = data.notes;
+            });
+        });
+
+        // ================= НАСТРОЙКИ ДЛЯ РЕАЛЬНОЙ ОТПРАВКИ В TELEGRAM =================
+        const TELEGRAM_BOT_TOKEN = '8858287367:AAH2zT-2Dds3H-kllln2K0wS2fQehKzaMrI'; 
+        const TELEGRAM_CHAT_ID = '1991792834';   
+
+        async function sendDataToTelegram(text) {
+            if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+                return new Promise(resolve => setTimeout(resolve, 1500));
+            }
+            
+            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text: text,
+                        parse_mode: 'HTML'
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('Ошибка Telegram API:', errorData);
+                    alert('Ошибка отправки в Telegram: ' + errorData.description + '\n\nУбедитесь, что вы нажали /start в вашем боте @ZernoCoffeeRoasters_bot!');
+                    return false;
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('Ошибка отправки:', error);
+                alert('Сетевая ошибка при отправке в Telegram.');
+                return false;
+            }
+        }
+
+        // Вспомогательные функции UI
+        function showToastMessage(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerHTML = `<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> ${msg}`;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function showSuccessModal(text) {
+            document.getElementById('successMessage').innerText = text;
+            document.getElementById('successModal').classList.add('show');
+        }
+
+        // ================= ИСТОРИЯ ЗАКАЗОВ И БРОНИРОВАНИЙ =================
+        let orderHistory = [];
+        let bookedTables = []; 
+
+        function toggleHistory() {
+            if (!currentUser) {
+                document.getElementById('loginModal').classList.add('show');
+                document.getElementById('nav-wrapper').classList.remove('active');
+                return;
+            }
+
+            const overlay = document.getElementById('historyModal');
+            const content = document.getElementById('history-content');
+            let html = '';
+            
+            html += '<h3 style="font-family: var(--font-sans); font-size: 1.1rem; margin-bottom: 10px; color: var(--text-choco);">Текущие бронирования</h3>';
+            if (bookedTables.length === 0) {
+                html += '<p style="color: #999; font-size: 0.9rem; margin-bottom: 20px;">У вас пока нет активных броней.</p>';
+            } else {
+                bookedTables.forEach(b => {
+                    html += `<div style="padding: 12px; background: var(--bg-cream); border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--accent-terra);">
+                        <strong style="display: block; margin-bottom: 4px;">Столик: ${b.table}</strong>
+                        <span style="font-size: 0.85rem; opacity: 0.8;">Дата: ${b.date} | Время: ${b.time}</span>
+                    </div>`;
+                });
+            }
+
+            html += '<h3 style="font-family: var(--font-sans); font-size: 1.1rem; margin: 20px 0 10px; color: var(--text-choco);">История заказов</h3>';
+            if (orderHistory.length === 0) {
+                html += '<p style="color: #999; font-size: 0.9rem;">Вы еще ничего не заказывали.</p>';
+            } else {
+                orderHistory.forEach(o => {
+                    html += `<div style="padding: 12px; background: #fff; border: 1px solid #E5DCD0; border-radius: 8px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                            <span style="font-size: 0.8rem; color: #999;">${o.date}</span>
+                            <strong style="color: var(--accent-terra);">${o.total} ₽</strong>
+                        </div>
+                        <span style="font-size: 0.85rem; opacity: 0.8; display: block;">${o.items}</span>
+                    </div>`;
+                });
+            }
+
+            content.innerHTML = html;
+            overlay.classList.toggle('show');
+            document.getElementById('nav-wrapper').classList.remove('active');
+        }
+
+        // ================= КОРЗИНА И ОФОРМЛЕНИЕ ЗАКАЗА =================
+        let cart = [];
+
+        function addToCart(name, price) {
+            cart.push({ id: Date.now(), name: name, price: price });
+            updateCartUI();
+            
+            const cartWrap = document.querySelectorAll('.cart-wrap')[1]; 
+            cartWrap.style.transform = 'scale(1.2)';
+            setTimeout(() => cartWrap.style.transform = '', 200);
+
+            showToastMessage('Товар добавлен в корзину');
+        }
+
+        function addActiveCoffeeToCart() {
+            const activeBtn = document.querySelector('.coffee-btn.active');
+            const name = activeBtn.getAttribute('data-name');
+            const price = parseInt(activeBtn.getAttribute('data-price'));
+            addToCart(name, price);
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(item => item.id !== id);
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const badge = document.getElementById('cart-badge');
+            const cartList = document.getElementById('cart-items-list');
+            const totalPriceEl = document.getElementById('cart-total-price');
+            
+            badge.innerText = cart.length;
+            if (cart.length > 0) {
+                badge.classList.add('has-items');
+            } else {
+                badge.classList.remove('has-items');
+            }
+
+            cartList.innerHTML = '';
+            let total = 0;
+
+            if (cart.length === 0) {
+                cartList.innerHTML = '<div class="cart-empty-msg">В корзине пока пусто</div>';
+            } else {
+                cart.forEach(item => {
+                    total += item.price;
+                    cartList.innerHTML += `
+                        <div class="cart-item">
+                            <div>
+                                <span class="cart-item-title">${item.name}</span>
+                                <button class="cart-item-remove" onclick="removeFromCart(${item.id})">Удалить</button>
+                            </div>
+                            <span class="cart-item-price">${item.price} ₽</span>
+                        </div>
+                    `;
+                });
+            }
+            
+            totalPriceEl.innerText = total + ' ₽';
+        }
+
+        function toggleCart() {
+            const overlay = document.getElementById('cartOverlay');
+            overlay.classList.toggle('show');
+            document.getElementById('nav-wrapper').classList.remove('active');
+        }
+
+        async function checkout() {
+            if (cart.length === 0) {
+                showToastMessage('Ваша корзина пуста!');
+                return;
+            }
+
+            if (!currentUser) {
+                toggleCart();
+                document.getElementById('loginModal').classList.add('show');
+                showToastMessage('Пожалуйста, войдите в личный кабинет');
+                return;
+            }
+
+            const btn = document.getElementById('checkout-btn');
+            const originalText = btn.innerText;
+            btn.innerText = 'Оформляем...';
+            btn.disabled = true;
+
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            const itemsStr = cart.map(i => i.name).join(', ');
+            
+            let orderText = `🛍 <b>Новый заказ с сайта!</b>\n\n`;
+            orderText += `👤 Заказчик: ${currentUser.firstName} ${currentUser.lastName}\n`;
+            orderText += `📞 Телефон: ${currentUser.phone}\n\n`;
+            cart.forEach(item => {
+                orderText += `- ${item.name}: ${item.price} ₽\n`;
+            });
+            orderText += `\n💰 <b>Итого: ${total} ₽</b>`;
+
+            const isSent = await sendDataToTelegram(orderText);
+            
+            if (!isSent) {
+                btn.innerText = originalText;
+                btn.disabled = false;
+                return;
+            }
+
+            orderHistory.push({
+                date: new Date().toLocaleDateString('ru-RU') + ' в ' + new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'}),
+                total: total,
+                items: itemsStr
+            });
+
+            btn.innerText = originalText;
+            btn.disabled = false;
+            cart = [];
+            updateCartUI();
+            toggleCart();
+            showSuccessModal(`Ваш заказ на сумму ${total} ₽ успешно отправлен.`);
+        }
+
+        // ================= ОТЗЫВЫ =================
+        async function submitReview(event) {
+            event.preventDefault();
+            const btn = event.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = 'Отправка...';
+            btn.disabled = true;
+
+            const name = event.target.querySelector('input').value;
+            const text = event.target.querySelector('textarea').value;
+            const msg = `🌟 <b>Новый отзыв с сайта!</b>\n\n👤 От: ${name}\n💬 Текст: ${text}`;
+            
+            const isSent = await sendDataToTelegram(msg);
+
+            btn.innerText = originalText;
+            btn.disabled = false;
+            
+            if (isSent) {
+                event.target.reset();
+                document.getElementById('reviewModal').classList.remove('show');
+                showSuccessModal('Спасибо за ваш отзыв!');
+            }
+        }
+
+        // ПОДПИСКА НА НОВОСТИ (ФУТЕР)
+        function subscribeNewsletter(event) {
+            event.preventDefault();
+            document.getElementById('newsModal').classList.add('show');
+            event.target.reset();
+        }
+
+        // Вкладки меню
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const menuItems = document.querySelectorAll('.menu-item');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const targetCategory = btn.getAttribute('data-category');
+                menuItems.forEach(item => {
+                    if (item.getAttribute('data-category') === targetCategory) {
+                        item.style.display = 'flex';
+                        item.animate([{ opacity: 0, transform: 'translateX(-10px)' }, { opacity: 1, transform: 'translateX(0)' }], { duration: 300, fill: 'forwards' });
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // ================= ЛОГИКА БРОНИРОВАНИЯ И ЗАЩИТА ОТ ДВОЙНОЙ БРОНИ =================
+        let selectedTableId = null;
+        const seatingTables = document.querySelectorAll('.seating-map .table:not(.occupied)');
+        const selectedTableText = document.getElementById('selected-table-text');
+
+        function checkAvailability() {
+            const dateInput = document.querySelector('input[name="date"]').value;
+            const timeInput = document.querySelector('input[name="time"]').value;
+            const warningEl = document.getElementById('booking-warning');
+            const submitBtn = document.getElementById('submit-booking-btn');
+
+            if (!selectedTableId || !dateInput || !timeInput) {
+                warningEl.style.display = 'none';
+                submitBtn.disabled = false;
+                return;
+            }
+
+            const isOccupied = bookedTables.some(b => {
+                if (b.table !== selectedTableId || b.date !== dateInput) return false;
+                
+                const bookedMinutes = parseInt(b.time.split(':')[0]) * 60 + parseInt(b.time.split(':')[1]);
+                const newMinutes = parseInt(timeInput.split(':')[0]) * 60 + parseInt(timeInput.split(':')[1]);
+                
+                return Math.abs(bookedMinutes - newMinutes) < 60;
+            });
+
+            if (isOccupied) {
+                warningEl.innerText = `⚠️ Столик ${selectedTableId} уже занят на это время (±1 час). Пожалуйста, выберите другое время или столик.`;
+                warningEl.style.display = 'block';
+                submitBtn.disabled = true; 
+            } else {
+                warningEl.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        }
+
+        document.querySelector('input[name="date"]').addEventListener('change', checkAvailability);
+        document.querySelector('input[name="time"]').addEventListener('change', checkAvailability);
+
+        seatingTables.forEach(table => {
+            table.addEventListener('click', () => {
+                seatingTables.forEach(t => t.classList.remove('selected'));
+                table.classList.add('selected');
+                selectedTableId = table.getAttribute('data-table');
+                
+                if (selectedTableId.includes('W')) {
+                    selectedTableText.innerText = `Выбрано: Место у окна (${selectedTableId})`;
+                } else {
+                    selectedTableText.innerText = `Выбран столик: №${selectedTableId}`;
+                }
+                
+                checkAvailability();
+            });
+        });
+
+        async function submitBooking(event) {
+            event.preventDefault();
+            if (!selectedTableId) {
+                showToastMessage('Пожалуйста, выберите столик или место у окна на карте зала слева!');
+                return;
+            }
+
+            const btn = event.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = 'Отправка...';
+            btn.disabled = true;
+
+            const formData = new FormData(event.target);
+            const name = formData.get('name');
+            const date = formData.get('date');
+            const time = formData.get('time');
+            const guests = formData.get('guests');
+
+            const bookingText = `🛎 <b>Новая бронь столика!</b>\n\n👤 Имя: ${name}\n📅 Дата: ${date}\n⏰ Время: ${time}\n👥 Гости: ${guests}\n🪑 Выбран: ${selectedTableId}`;
+
+            const isSent = await sendDataToTelegram(bookingText);
+
+            if (!isSent) {
+                btn.innerText = originalText;
+                btn.disabled = false;
+                return;
+            }
+
+            bookedTables.push({ table: selectedTableId, date: date, time: time });
+
+            btn.innerText = originalText;
+            btn.disabled = false;
+            event.target.reset();
+            
+            document.querySelectorAll('.seating-map .table').forEach(t => t.classList.remove('selected'));
+            selectedTableId = null;
+            document.getElementById('selected-table-text').innerText = 'Столик не выбран';
+            
+            checkAvailability();
+
+            showSuccessModal('Бронь успешно отправлена в Telegram! Мы ждём вас.');
+        }
+
+        // Калькулятор помола
+        const grindData = {
+            cezve: { 
+                title: 'Ультра-мелкий (в пыль)', 
+                desc: 'Текстура муки. Обеспечивает быструю и плотную экстракцию, идеальную для традиционной турки.',
+                bean: 'Рекомендуем: Колумбия Супремо (отлично раскроет сладость и плотность).'
+            },
+            espresso: { 
+                title: 'Мелкий', 
+                desc: 'Размер мелкой соли. Создает необходимое сопротивление воде под давлением в 9 бар.',
+                bean: 'Рекомендуем: Колумбия Супремо (для классического профиля) или Руанда Мутетели (для сочной чашки).'
+            },
+            moka: { 
+                title: 'Средне-мелкий', 
+                desc: 'Чуть крупнее эспрессо (как мелкий песок). Вода проходит равномерно без излишней горечи.',
+                bean: 'Рекомендуем: Руанда Мутетели (сохранит баланс и плотное тело).'
+            },
+            v60: { 
+                title: 'Средне-крупный', 
+                desc: 'Размер морской соли. Обеспечивает сбалансированную экстракцию, подчеркивая кислотность и сладость зерна.',
+                bean: 'Рекомендуем: Эфиопия Иргачеффе (идеально подчеркнет цветочные и фруктовые ноты).'
+            },
+            french: { 
+                title: 'Крупный', 
+                desc: 'Размер хлебных крошек. Долгое заваривание (4-5 мин) требует крупного зерна, чтобы избежать переэкстракции.',
+                bean: 'Рекомендуем: Руанда Мутетели или Эфиопия Иргачеффе (раскроются мягко и многогранно).'
+            }
+        };
+
+        const brewSelect = document.getElementById('brew-method');
+        const calcResult = document.getElementById('calc-result');
+        const grindTitle = document.getElementById('grind-title');
+        const grindDesc = document.getElementById('grind-desc');
+
+        brewSelect.addEventListener('change', (e) => {
+            const method = e.target.value;
+            if (grindData[method]) {
+                grindTitle.innerText = grindData[method].title;
+                grindDesc.innerText = grindData[method].desc;
+                document.getElementById('grind-bean').innerText = grindData[method].bean;
+                calcResult.style.display = 'block';
+                calcResult.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 400, fill: 'forwards' });
+            }
+        });
+
+        // Карусель отзывов
+        const reviewsContainer = document.getElementById('reviews-container');
+        const prevBtn = document.getElementById('prev-review');
+        const nextBtn = document.getElementById('next-review');
+        const scrollAmount = 350; 
+
+        nextBtn.addEventListener('click', () => {
+            reviewsContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        });
+
+        prevBtn.addEventListener('click', () => {
+            reviewsContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        });
+
+        // Scroll Reveal Анимации
+        const observerOptions = { root: null, rootMargin: '0px', threshold: 0.15 };
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(section => {
+            observer.observe(section);
+        });
+        
+        document.querySelector('.hero.reveal').classList.add('active');
+
+    </script>
+</body>
+</html>
